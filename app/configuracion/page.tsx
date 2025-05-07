@@ -1,11 +1,11 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../components/ui/card"
 import { MessageSquare, Bell, Settings, Users, Calendar } from "lucide-react"
-import { WhatsAppModal } from "@/components/pagos/whatsapp-modal"
-import { WhatsAppBatchNotification } from "@/components/pagos/whatsapp-batch-notification"
-import { SystemNotificationsModal } from "@/components/system-notifications-modal"
-import { UserPermissionsModal } from "@/components/user-permissions-modal"
-import { TaskSchedulingModal } from "@/components/task-scheduling-modal"
-import { GeneralConfigModal } from "@/components/general-config-modal"
+import { WhatsAppModal } from "../../components/pagos/whatsapp-modal"
+import { WhatsAppBatchNotification } from "../../components/pagos/whatsapp-batch-notification"
+import { SystemNotificationsModal } from "../../components/system-notifications-modal"
+import { UserPermissionsModal } from "../../components/user-permissions-modal"
+import { TaskSchedulingModal } from "../../components/task-scheduling-modal"
+import { GeneralConfigModal } from "../../components/general-config-modal"
 
 export default function ConfiguracionPage() {
   return (

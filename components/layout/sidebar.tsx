@@ -1,9 +1,9 @@
 "use client"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { LanguageToggle } from "@/components/language-toggle"
-import { UserInfo } from "@/components/user-info"
+import { Button } from "../../components/ui/button"
+import { LanguageToggle } from "../../components/language-toggle"
+import { UserInfo } from "../../components/user-info"
 import {
   BarChart3,
   Calendar,
@@ -19,9 +19,9 @@ import {
   X,
 } from "lucide-react"
 import { useState, useEffect } from "react"
-import { useSidebar } from "@/components/ui/sidebar"
-import { cn } from "@/lib/utils"
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { useSidebar } from "../../components/ui/sidebar"
+import { cn } from "../../lib/utils"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../../components/ui/sheet"
 
 
 export function Sidebar() {

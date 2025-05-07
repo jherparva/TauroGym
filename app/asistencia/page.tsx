@@ -3,18 +3,18 @@
 import type React from "react"
 import { useState, useEffect, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Avatar } from "@/components/ui/avatar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DatePickerWithRange } from "@/components/date-range-picker"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
+import { Button } from "../../components/ui/button"
+import { Input } from "../../components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
+import { Badge } from "../../components/ui/badge"
+import { Avatar } from "../../components/ui/avatar"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
+import { Label } from "../../components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
+import { DatePickerWithRange } from "../../components/date-range-picker"
+import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover"
+import { Calendar } from "../../components/ui/calendar"
 import {
   Check,
   Search,
@@ -39,9 +39,9 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react"
-import { formatDateTime, cn } from "@/lib/utils"
-import { toast } from "@/components/ui/use-toast"
-import { UserDetailModal } from "@/components/user-detail-modal"
+import { formatDateTime, cn } from "../../lib/utils"
+import { toast } from "../../components/ui/use-toast"
+import { UserDetailModal } from "../../components/user-detail-modal"
 import {
   Dialog,
   DialogContent,
@@ -49,8 +49,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
+} from "../../components/ui/dialog"
+import { Textarea } from "../../components/ui/textarea"
 import { format, addDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isToday } from "date-fns"
 import { es } from "date-fns/locale"
 import {

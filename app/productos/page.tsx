@@ -2,19 +2,19 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "../../components/ui/button"
+import { Input } from "../../components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
+import { Badge } from "../../components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { 
   Plus, Search, Edit, Trash, AlertTriangle, ShoppingCart,
   Calendar, Printer, BarChart3, ArrowRight, ChevronDown 
 } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/dialog"
+import { Label } from "../../omponents/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
 import { format, startOfMonth, endOfMonth, subMonths, parseISO } from "date-fns"
 import { es } from 'date-fns/locale'
 import {
@@ -22,7 +22,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "../../components/ui/dropdown-menu"
 
 // Tipo para nuestro producto
 interface Producto {

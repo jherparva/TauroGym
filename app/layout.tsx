@@ -1,9 +1,9 @@
 import "@/styles/globals.css"
 import { Inter } from "next/font/google"
 import type React from "react"
-import { Sidebar } from "@/components/layout/sidebar"
-import { SidebarProvider } from "@/components/ui/sidebar"
-import { LanguageProvider } from "@/contexts/language-context"
+import { Sidebar } from "../../components/layout/sidebar"
+import { SidebarProvider } from "../../components/ui/sidebar"
+import { LanguageProvider } from "../../contexts/language-context"
 
 const inter = Inter({ subsets: ["latin"] })
 

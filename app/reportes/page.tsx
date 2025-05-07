@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "../../components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DateRangePicker } from "@/components/date-range-picker"
+import { DateRangePicker } from "../../components/date-range-picker"
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns"
 import { es } from "date-fns/locale"
 import {
@@ -21,8 +21,8 @@ import {
   Legend,
 } from "recharts"
 import { Download, Loader2, DollarSign, Users, ShoppingBag } from "lucide-react"
-import { toast } from "@/components/ui/use-toast"
-import { formatCOP } from "@/lib/currency"
+import { toast } from "../../components/ui/use-toast"
+import { formatCOP } from "../../lib/currency"
 
 // Colores para gráficos
 const COLORS = ["#ff6b00", "#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d"]

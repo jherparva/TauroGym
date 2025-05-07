@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react"
 import { startOfMonth, endOfMonth, subMonths, addMonths } from "date-fns"
-import { toast } from "@/components/ui/use-toast"
-import { UserHeader } from "@/components/usuarios/user-header"
-import { UserStats } from "@/components/usuarios/user-stats"
-import { UserActions } from "@/components/usuarios/user-actions"
-import { UserSearch } from "@/components/usuarios/user-search"
-import { UserTable } from "@/components/usuarios/user-table"
-import { UserEditDialog } from "@/components/usuarios/user-edit-dialog"
-import { UserViewDialog } from "@/components/usuarios/user-view-dialog"
+import { toast } from "../../components/ui/use-toast"
+import { UserHeader } from "../../components/usuarios/user-header"
+import { UserStats } from "../../components/usuarios/user-stats"
+import { UserActions } from "../../components/usuarios/user-actions"
+import { UserSearch } from "../../components/usuarios/user-search"
+import { UserTable } from "../../components/usuarios/user-table"
+import { UserEditDialog } from "../../components/usuarios/user-edit-dialog"
+import { UserViewDialog } from "../../components/usuarios/user-view-dialog"
 
 // Interfaces
 interface Usuario {

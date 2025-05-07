@@ -9,15 +9,15 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
+} from "../../components/ui/dialog"
+import { Label } from "../../components/ui/label"
+import { Input } from "../../components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+import { Button } from "../../components/ui/button"
 import { useState } from "react"
 import { Loader2 } from "lucide-react"
-import { toast } from "@/components/ui/use-toast"
-import { formatCOP } from "@/lib/currency"
+import { toast } from "../../components/ui/use-toast"
+import { formatCOP } from "../../lib/currency"
 
 interface UsuarioConPago {
   _id: string

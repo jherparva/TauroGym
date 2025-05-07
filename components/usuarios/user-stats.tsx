@@ -1,6 +1,6 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/card"
 import { Users, DollarSign, AlertCircle } from "lucide-react"
-import { formatCOP } from "@/lib/currency"
+import { formatCOP } from "../../lib/currency"
 
 interface UserStatsProps {
   totalUsuariosActivos: number

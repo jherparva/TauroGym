@@ -1,14 +1,14 @@
 "use client"
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Avatar } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { formatDate } from "@/lib/utils"
-import { formatCOP } from "@/lib/currency"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
+import { Badge } from "../../components/ui/badge"
+import { Avatar } from "../../components/ui/avatar"
+import { Button } from "../../components/ui/button"
+import { Progress } from "../../components/ui/progress"
+import { formatDate } from "../../lib/utils"
+import { formatCOP } from "../../lib/currency"
 import { Eye, Edit, Trash, Loader2, MessageSquare } from "lucide-react"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "../../components/ui/use-toast"
 
 interface UsuarioConPago {
   _id: string

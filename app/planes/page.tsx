@@ -3,17 +3,17 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "../../components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../../components/ui/card"
+import { Badge } from "../../components/ui/badge"
 import { Plus, Edit, Trash } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/components/ui/use-toast"
-import { formatCOP } from "@/lib/currency"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "../../components/ui/dialog"
+import { Label } from "../../components/ui/label"
+import { Input } from "../../components/ui/input"
+import { Textarea } from "../../components/ui/textarea"
+import { toast } from "../../components/ui/use-toast"
+import { formatCOP } from "../../lib/currency"
 
 // Definir interfaz para el tipo de Plan
 interface Plan {

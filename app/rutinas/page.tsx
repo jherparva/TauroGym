@@ -1,17 +1,17 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "../../components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../../components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
+import { Badge } from "../../components/ui/badge"
 import { Plus, Edit, Trash, Eye, Loader2 } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { toast } from "@/components/ui/use-toast"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/dialog"
+import { Input } from "../../components/ui/input"
+import { Label } from "../../components/ui/label"
+import { Textarea } from "../../components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+import { toast } from "../../components/ui/use-toast"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +21,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "../../components/ui/alert-dialog"
 
 // Interfaces
 interface Ejercicio {

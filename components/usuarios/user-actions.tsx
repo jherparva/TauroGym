@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "../../components/ui/button"
 import {
   Dialog,
   DialogTrigger,
@@ -11,15 +11,15 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+} from "../../components/ui/dialog"
+import { Label } from "../../components/ui/label"
+import { Input } from "../../components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { useState } from "react"
 import { Plus, RefreshCw, Loader2 } from "lucide-react"
-import { PagoModal } from "@/components/pagos/pago-modal"
-import { WhatsAppBatchNotification } from "@/components/pagos/whatsapp-batch-notification"
-import { toast } from "@/components/ui/use-toast"
+import { PagoModal } from "../../components/pagos/pago-modal"
+import { WhatsAppBatchNotification } from "../../components/pagos/whatsapp-batch-notification"
+import { toast } from "../../components/ui/use-toast"
 
 interface UserActionsProps {
   fetchUsers: () => Promise<void>

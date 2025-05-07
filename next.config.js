@@ -9,6 +9,12 @@ const nextConfig = {
   },
   images: {
     domains: ["localhost"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
     unoptimized: true,
   },
   compiler: {
@@ -17,6 +23,13 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     scrollRestoration: true,
+  },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@": ".",
+    }
+    return config
   },
 }
 

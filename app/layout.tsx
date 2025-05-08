@@ -1,11 +1,9 @@
-import "../styles/globals.css"
-import { Inter } from "next/font/google"
+// Importar CSS directamente sin Tailwind
+import "../styles/main.css"
 import type React from "react"
 import { Sidebar } from "../components/layout/sidebar"
 import { SidebarProvider } from "../components/ui/sidebar"
 import { LanguageProvider } from "../contexts/language-context"
-
-const inter = Inter({ subsets: ["latin"] })
 
 export default function RootLayout({
   children,
@@ -14,7 +12,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className={inter.className}>
+      <body>
         <LanguageProvider>
           <SidebarProvider>
             <div className="min-h-screen bg-background text-foreground">

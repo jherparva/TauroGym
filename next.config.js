@@ -27,11 +27,9 @@ const nextConfig = {
     scrollRestoration: true,
   },
   webpack: (config) => {
-    // Forzar la resolución de tailwindcss
     config.resolve.alias = {
       ...config.resolve.alias,
       "@": ".",
-      tailwindcss: require.resolve("tailwindcss"),
     }
     return config
   },

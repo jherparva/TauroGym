@@ -22,7 +22,8 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === "production",
   },
   experimental: {
-    optimizeCss: true,
+    // Desactivar optimizaciones experimentales que pueden causar problemas
+    optimizeCss: false,
     scrollRestoration: true,
   },
   webpack: (config) => {

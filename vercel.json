@@ -1,5 +1,5 @@
 {
-    "buildCommand": "npm install --no-save --force typescript @types/node tailwindcss postcss autoprefixer && npm run build",
+    "buildCommand": "npm install --no-save --force tailwindcss postcss autoprefixer && npm run build",
     "installCommand": "npm install",
     "framework": "nextjs"
   }

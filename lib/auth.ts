@@ -84,3 +84,9 @@ export async function updateSession(request: NextRequest) {
 
   return response
 }
+
+// Nueva función exportada: isAuthenticated
+export async function isAuthenticated(): Promise<boolean> {
+  const session = await getSession()
+  return session !== null
+}

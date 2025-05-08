@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "../../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
 import { DateRangePicker } from "../../components/date-range-picker"
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns"
 import { es } from "date-fns/locale"

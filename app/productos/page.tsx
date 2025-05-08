@@ -12,7 +12,7 @@ import {
   Calendar, Printer, BarChart3, ArrowRight, ChevronDown 
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/dialog"
-import { Label } from "../../omponents/ui/label"
+import { Label } from "../../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
 import { format, startOfMonth, endOfMonth, subMonths, parseISO } from "date-fns"

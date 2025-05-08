@@ -33,6 +33,18 @@ const nextConfig = {
     }
     return config
   },
+  // Desactivar completamente el procesamiento de CSS
+  webpack5: true,
+  webpack: (config) => {
+    const oneOfRule = config.module.rules.find((rule) => typeof rule.oneOf === "object")
+
+    if (oneOfRule) {
+      // Eliminar reglas de CSS
+      oneOfRule.oneOf = oneOfRule.oneOf.filter((rule) => !rule.test || !rule.test.toString().includes("css"))
+    }
+
+    return config
+  },
 }
 
 module.exports = nextConfig

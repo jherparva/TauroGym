@@ -1,4 +1,4 @@
-// Eliminar completamente la importación de CSS
+import "../styles/globals.css"
 import type React from "react"
 import { Sidebar } from "../components/layout/sidebar"
 import { SidebarProvider } from "../components/ui/sidebar"

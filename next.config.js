@@ -9,8 +9,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Desactivar completamente la comprobación de tipos
-  transpilePackages: [],
+  // Configuración para resolver problemas de importación
   images: {
     domains: ["localhost"],
     remotePatterns: [
@@ -27,14 +26,14 @@ const nextConfig = {
   experimental: {
     scrollRestoration: true,
   },
-  // Desactivar la generación de archivos de tipos
-  generateBuildId: async () => {
-    return "build-id"
-  },
-  // Configuración adicional para evitar problemas con TypeScript
+  // Configuración adicional para resolver problemas de importación
   webpack: (config, { isServer }) => {
-    // Evitar que webpack procese archivos .ts y .tsx
-    config.resolve.extensions = [".js", ".jsx", ".json"]
+    // Configuración para resolver problemas de importación de componentes
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@/components": "./components",
+      "@/lib": "./lib",
+    }
 
     return config
   },

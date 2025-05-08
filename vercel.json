@@ -1,6 +1,6 @@
 {
-    "buildCommand": "npm install --no-save --force tailwindcss postcss autoprefixer && npm run build",
     "installCommand": "npm install",
-    "framework": "nextjs"
+    "framework": "nextjs",
+    "buildCommand": "npm run build"
   }
   

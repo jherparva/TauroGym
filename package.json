@@ -4,11 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm install --no-save tailwindcss postcss autoprefixer && next build",
     "start": "next start",
     "lint": "next lint",
-    "update-db": "node scripts/updateSchemas.js",
-    "postinstall": "npm install --save-dev typescript@5.8.3 @types/node@20.17.44 tailwindcss@3.3.6 postcss@8.4.32 autoprefixer@10.4.16"
+    "update-db": "node scripts/updateSchemas.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",
@@ -63,15 +62,15 @@
     "tailwindcss-animate": "^1.0.7",
     "twilio": "^5.6.0",
     "vaul": "^0.7.9",
-    "zod": "^3.22.4",
-    "tailwindcss": "^3.3.6",
-    "postcss": "^8.4.32",
-    "autoprefixer": "^10.4.16"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "typescript": "5.8.3",
     "@types/node": "20.17.44",
     "@types/react": "18.2.42",
-    "@types/react-dom": "18.2.17"
+    "@types/react-dom": "18.2.17",
+    "tailwindcss": "^3.3.6",
+    "postcss": "^8.4.32",
+    "autoprefixer": "^10.4.16"
   }
 }

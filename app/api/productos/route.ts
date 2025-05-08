@@ -1,8 +1,8 @@
 //C:\Users\jhon\Downloads\tauroGYM1\app\api\productos\route.ts
 
 import { type NextRequest, NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
-import Product from "@/models/Product"
+import dbConnect from "../../../lib/mongodb"
+import Product from "../../../models/Product"
 
 export async function GET(req: NextRequest) {
   try {

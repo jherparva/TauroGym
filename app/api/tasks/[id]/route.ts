@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic"
 
 import { type NextRequest, NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
-import { getSession } from "@/lib/auth"
+import dbConnect from "../../../../lib/mongodb"
+import { getSession } from "../../../../lib/auth"
 import mongoose from "mongoose"
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {

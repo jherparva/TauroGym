@@ -1,8 +1,8 @@
 //C:\Users\jhon\Downloads\tauroGYM1\app\api\asistencia\route.ts
 
 import { type NextRequest, NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
-import Attendance from "@/models/Attendance"
+import dbConnect from "../../../lib/mongodb"
+import Attendance from "../../../models/Attendance"
 
 export async function GET(req: NextRequest) {
   try {

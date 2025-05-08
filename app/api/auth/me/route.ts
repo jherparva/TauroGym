@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { cookies } from "next/headers"
-import { decrypt } from "@/lib/auth"
-import dbConnect from "@/lib/mongodb"
-import { Admin } from "@/lib/models"
+import { decrypt } from "../../../../lib/auth"
+import dbConnect from "../../../../lib/mongodb"
+import { Admin } from "../../../../lib/models"
 import mongoose from "mongoose"
 
 export async function GET(request: NextRequest) {

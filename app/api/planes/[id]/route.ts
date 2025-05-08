@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
-import { Plan } from "@/lib/models"
+import dbConnect from "../../../../lib/mongodb"
+import { Plan } from "../../../../lib/models"
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {

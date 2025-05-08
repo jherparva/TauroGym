@@ -1,13 +1,13 @@
 import mongoose from "mongoose"
 
 // Importar los modelos
-import AdminModel, { type IAdmin } from "@/models/Admin"
-import AttendanceModel, { type IAttendance } from "@/models/Attendance"
-import PlanModel, { type IPlan } from "@/models/Plan"
-import ProductModel, { type IProduct } from "@/models/Product"
-import RoutineModel, { type IRoutine } from "@/models/Routine"
-import SaleModel, { type ISale } from "@/models/Sale"
-import UserModel from "@/models/User"
+import AdminModel, { type IAdmin } from "../models/Admin"
+import AttendanceModel, { type IAttendance } from "../models/Attendance"
+import PlanModel, { type IPlan } from "../models/Plan"
+import ProductModel, { type IProduct } from "../models/Product"
+import RoutineModel, { type IRoutine } from "../models/Routine"
+import SaleModel, { type ISale } from "../models/Sale"
+import UserModel from "../models/User"
 
 // Actualizar el esquema de Usuario para incluir el campo montoPagado
 const UserSchema = new mongoose.Schema(

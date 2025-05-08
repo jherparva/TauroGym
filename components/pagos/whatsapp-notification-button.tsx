@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "../../components/ui/button"
-import { toast } from "../../components/ui/use-toast"
+import { Button } from "../ui/button"
+import { toast } from "../ui/use-toast"
 import { MessageSquare, Loader2 } from "lucide-react"
 
 interface WhatsAppNotificationButtonProps {

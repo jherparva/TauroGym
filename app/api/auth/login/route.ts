@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import dbConnect from "@/lib/mongodb"
-import { Admin } from "@/lib/models"
-import { encrypt } from "@/lib/auth"
+import dbConnect from "../../../../lib/mongodb"
+import { Admin } from "../../../../lib/models"
+import { encrypt } from "../../../../lib/auth"
 import { cookies } from "next/headers"
 
 export async function POST(request: NextRequest) {

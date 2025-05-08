@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
-import User from "@/models/User"
-import Plan from "@/models/Plan"
+import dbConnect from "../../../../lib/mongodb"
+import User from "../../../../models/User"
+import Plan from "../../../../models/Plan"
 
 export async function GET(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
   try {

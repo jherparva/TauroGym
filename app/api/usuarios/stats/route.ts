@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
-import User from "@/models/User"
+import dbConnect from "../../../../lib/mongodb"
+import User from "../../../../models/User"
 import { format, parse, startOfMonth } from "date-fns"
 import { es } from "date-fns/locale"
 

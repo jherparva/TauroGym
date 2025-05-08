@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { isAuthenticated } from "@/lib/auth"
+import { isAuthenticated } from "../../../../lib/auth"
 
 export async function POST(req: NextRequest) {
   try {

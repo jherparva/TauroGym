@@ -7,15 +7,15 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "../../components/ui/dialog"
-import { Badge } from "../../components/ui/badge"
-import { Avatar } from "../../components/ui/avatar"
-import { Button } from "../../components/ui/button"
-import { Input } from "../../components/ui/input"
-import { Progress } from "../../components/ui/progress"
+} from "../ui/dialog"
+import { Badge } from "../ui/badge"
+import { Avatar } from "../ui/avatar"
+import { Button } from "../ui/button"
+import { Input } from "../ui/input"
+import { Progress } from "../ui/progress"
 import { formatDate } from "../../lib/utils"
 import { formatCOP } from "../../lib/currency"
-import { toast } from "../../components/ui/use-toast"
+import { toast } from "../ui/use-toast"
 
 // Actualizar la interfaz UsuarioConPago para incluir los nuevos campos
 interface UsuarioConPago {

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
-import Routine from "@/models/Routine"
+import dbConnect from "../../../../lib/mongodb"
+import Routine from "../../../../models/Routine"
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {

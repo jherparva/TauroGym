@@ -1,5 +1,5 @@
-import { Avatar } from "@/components/ui/avatar"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Avatar } from "./ui/avatar"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { MoreHorizontal } from "lucide-react"
 
 const vaults = [

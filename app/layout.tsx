@@ -1,4 +1,3 @@
-
 import "./globals.css"
 import type React from "react"
 import { Inter } from "next/font/google"
@@ -15,6 +14,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>TauroGym</title>
+      </head>
       <body className={inter.className}>
         <LanguageProvider>
           <SidebarProvider>

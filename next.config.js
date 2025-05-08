@@ -31,12 +31,13 @@ const nextConfig = {
     // Configuración para resolver problemas de importación de componentes
     config.resolve.alias = {
       ...config.resolve.alias,
-      "@/components": "./components",
-      "@/lib": "./lib",
     }
 
     return config
   },
+  // Asegurarse de que los estilos se carguen correctamente
+  poweredByHeader: false,
+  swcMinify: true,
 }
 
 module.exports = nextConfig

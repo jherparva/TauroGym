@@ -26,20 +26,16 @@ const nextConfig = {
     optimizeCss: false,
     scrollRestoration: true,
   },
+  // Corregido: eliminar webpack5 y corregir la configuración de webpack
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
       "@": ".",
     }
-    return config
-  },
-  // Desactivar completamente el procesamiento de CSS
-  webpack5: true,
-  webpack: (config) => {
-    const oneOfRule = config.module.rules.find((rule) => typeof rule.oneOf === "object")
 
+    // Eliminar reglas de CSS
+    const oneOfRule = config.module.rules.find((rule) => typeof rule.oneOf === "object")
     if (oneOfRule) {
-      // Eliminar reglas de CSS
       oneOfRule.oneOf = oneOfRule.oneOf.filter((rule) => !rule.test || !rule.test.toString().includes("css"))
     }
 

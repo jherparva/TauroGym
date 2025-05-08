@@ -1,5 +1,6 @@
 import "../styles/globals.css"
 import type React from "react"
+import { Inter } from "next/font/google"
 import { Sidebar } from "../components/layout/sidebar"
 import { SidebarProvider } from "../components/ui/sidebar"
 import { LanguageProvider } from "../contexts/language-context"

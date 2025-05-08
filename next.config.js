@@ -5,6 +5,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   typescript: {
+    // Desactivar la verificación de tipos durante la compilación
     ignoreBuildErrors: true,
   },
   images: {

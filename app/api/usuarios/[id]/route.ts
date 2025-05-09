@@ -3,17 +3,17 @@ import dbConnect from "../../../../lib/mongodb"
 import User from "../../../../models/User"
 import Plan from "../../../../models/Plan"
 
-// Agregar manejo de OPTIONS para CORS preflight
+// Función para configurar los headers CORS
+function setCorsHeaders(response: NextResponse) {
+  response.headers.set("Access-Control-Allow-Origin", "*")
+  response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+  response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+  return response
+}
+
+// Manejador para OPTIONS (CORS preflight)
 export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      "Access-Control-Max-Age": "86400",
-    },
-  })
+  return setCorsHeaders(new NextResponse(null, { status: 204 }))
 }
 
 export async function GET(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
@@ -25,18 +25,13 @@ export async function GET(req: NextRequest, contextPromise: Promise<{ params: { 
     const user = await User.findById(userId).populate("plan")
 
     if (!user) {
-      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
+      return setCorsHeaders(NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 }))
     }
 
-    // Agregar headers CORS a la respuesta
-    const response = NextResponse.json({ user })
-    response.headers.set("Access-Control-Allow-Origin", "*")
-    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-    return response
+    return setCorsHeaders(NextResponse.json({ user }))
   } catch (error) {
     console.error("Error en GET:", error)
-    return NextResponse.json({ error: "Error al obtener usuario" }, { status: 500 })
+    return setCorsHeaders(NextResponse.json({ error: "Error al obtener usuario" }, { status: 500 }))
   }
 }
 
@@ -50,7 +45,7 @@ export async function PUT(req: NextRequest, contextPromise: Promise<{ params: { 
 
     const currentUser = await User.findById(userId).populate("plan")
     if (!currentUser) {
-      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
+      return setCorsHeaders(NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 }))
     }
 
     const planChanged = currentUser.plan?._id?.toString() !== body.plan
@@ -86,15 +81,10 @@ export async function PUT(req: NextRequest, contextPromise: Promise<{ params: { 
 
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).populate("plan")
 
-    // Agregar headers CORS a la respuesta
-    const response = NextResponse.json({ user: updatedUser })
-    response.headers.set("Access-Control-Allow-Origin", "*")
-    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-    return response
+    return setCorsHeaders(NextResponse.json({ user: updatedUser }))
   } catch (error) {
     console.error("Error en PUT:", error)
-    return NextResponse.json({ error: "Error al actualizar usuario" }, { status: 500 })
+    return setCorsHeaders(NextResponse.json({ error: "Error al actualizar usuario" }, { status: 500 }))
   }
 }
 
@@ -107,17 +97,12 @@ export async function DELETE(req: NextRequest, contextPromise: Promise<{ params:
 
     const deletedUser = await User.findByIdAndDelete(userId)
     if (!deletedUser) {
-      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
+      return setCorsHeaders(NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 }))
     }
 
-    // Agregar headers CORS a la respuesta
-    const response = NextResponse.json({ success: true })
-    response.headers.set("Access-Control-Allow-Origin", "*")
-    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-    return response
+    return setCorsHeaders(NextResponse.json({ success: true }))
   } catch (error) {
     console.error("Error en DELETE:", error)
-    return NextResponse.json({ error: "Error al eliminar usuario" }, { status: 500 })
+    return setCorsHeaders(NextResponse.json({ error: "Error al eliminar usuario" }, { status: 500 }))
   }
 }

@@ -1,9 +1,20 @@
-//C:\Users\jhon\Music\TauroGym\app\api\usuarios\[id]\route.ts
-
 import { type NextRequest, NextResponse } from "next/server"
 import dbConnect from "../../../../lib/mongodb"
 import User from "../../../../models/User"
 import Plan from "../../../../models/Plan"
+
+// Agregar manejo de OPTIONS para CORS preflight
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Max-Age": "86400",
+    },
+  })
+}
 
 export async function GET(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
   try {
@@ -17,7 +28,12 @@ export async function GET(req: NextRequest, contextPromise: Promise<{ params: { 
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
-    return NextResponse.json({ user })
+    // Agregar headers CORS a la respuesta
+    const response = NextResponse.json({ user })
+    response.headers.set("Access-Control-Allow-Origin", "*")
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    return response
   } catch (error) {
     console.error("Error en GET:", error)
     return NextResponse.json({ error: "Error al obtener usuario" }, { status: 500 })
@@ -40,6 +56,15 @@ export async function PUT(req: NextRequest, contextPromise: Promise<{ params: { 
     const planChanged = currentUser.plan?._id?.toString() !== body.plan
     const updateData: any = {}
 
+    // Actualizar los campos que vienen en el body
+    if (body.cedula) updateData.cedula = body.cedula
+    if (body.nombre) updateData.nombre = body.nombre
+    if (body.email) updateData.email = body.email
+    if (body.telefono) updateData.telefono = body.telefono
+    if (body.direccion) updateData.direccion = body.direccion
+    if (body.fechaNacimiento) updateData.fechaNacimiento = body.fechaNacimiento
+    if (body.estado) updateData.estado = body.estado
+
     if (body.plan) {
       if (body.plan === "diaUnico") {
         updateData.fechaInicio = body.fechaInicio || new Date()
@@ -58,11 +83,15 @@ export async function PUT(req: NextRequest, contextPromise: Promise<{ params: { 
     if (body.fechaInicio) updateData.fechaInicio = body.fechaInicio
     if (body.fechaFin) updateData.fechaFin = body.fechaFin
     if (body.montoPagado !== undefined) updateData.montoPagado = Number(body.montoPagado)
-    if (body.estado) updateData.estado = body.estado
 
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).populate("plan")
 
-    return NextResponse.json({ user: updatedUser })
+    // Agregar headers CORS a la respuesta
+    const response = NextResponse.json({ user: updatedUser })
+    response.headers.set("Access-Control-Allow-Origin", "*")
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    return response
   } catch (error) {
     console.error("Error en PUT:", error)
     return NextResponse.json({ error: "Error al actualizar usuario" }, { status: 500 })
@@ -81,7 +110,12 @@ export async function DELETE(req: NextRequest, contextPromise: Promise<{ params:
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
-    return NextResponse.json({ success: true })
+    // Agregar headers CORS a la respuesta
+    const response = NextResponse.json({ success: true })
+    response.headers.set("Access-Control-Allow-Origin", "*")
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    return response
   } catch (error) {
     console.error("Error en DELETE:", error)
     return NextResponse.json({ error: "Error al eliminar usuario" }, { status: 500 })

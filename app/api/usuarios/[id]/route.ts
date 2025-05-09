@@ -1,123 +1,106 @@
-import { type NextRequest, NextResponse } from "next/server"
-import dbConnect from "../../../../lib/mongodb"
-import User from "../../../../models/User"
-import Plan from "../../../../models/Plan"
-import { corsMiddleware } from "../../../../lib/cors"
+import type { NextRequest } from "next/server"
+import { User, Plan } from "../../../../lib/models"
+import { apiHandler, logActivity } from "../../../../lib/api-utils"
 
-// Manejador para OPTIONS (CORS preflight)
-export async function OPTIONS(req: NextRequest) {
-  return new NextResponse(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Credentials": "true",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET,DELETE,PATCH,POST,PUT,OPTIONS",
-      "Access-Control-Allow-Headers":
-        "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization",
-      "Access-Control-Max-Age": "86400",
+// GET - Obtener un usuario por ID
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  return apiHandler(
+    req,
+    async () => {
+      const userId = params.id
+      const user = await User.findById(userId).populate("plan")
+
+      if (!user) {
+        throw new Error("Usuario no encontrado")
+      }
+
+      return { user }
     },
-  })
+    params,
+    { errorMessage: "Error al obtener usuario" },
+  )
 }
 
-export async function GET(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
-  // Verificar CORS
-  const corsResponse = corsMiddleware(req)
-  if (corsResponse) return corsResponse
+// PUT - Actualizar un usuario por ID
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  return apiHandler(
+    req,
+    async (req) => {
+      const userId = params.id
+      const body = await req.json()
 
-  try {
-    await dbConnect()
+      const currentUser = await User.findById(userId).populate("plan")
+      if (!currentUser) {
+        throw new Error("Usuario no encontrado")
+      }
 
-    const { params } = await contextPromise
-    const userId = params.id
-    const user = await User.findById(userId).populate("plan")
+      const planChanged = currentUser.plan?._id?.toString() !== body.plan
+      const updateData: any = {}
 
-    if (!user) {
-      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
-    }
+      // Actualizar campos básicos si están presentes
+      if (body.cedula) updateData.cedula = body.cedula
+      if (body.nombre) updateData.nombre = body.nombre
+      if (body.email) updateData.email = body.email
+      if (body.telefono) updateData.telefono = body.telefono
+      if (body.direccion) updateData.direccion = body.direccion
+      if (body.fechaNacimiento) updateData.fechaNacimiento = body.fechaNacimiento
+      if (body.estado) updateData.estado = body.estado
 
-    return NextResponse.json({ user })
-  } catch (error) {
-    console.error("Error en GET:", error)
-    return NextResponse.json({ error: "Error al obtener usuario" }, { status: 500 })
-  }
-}
-
-export async function PUT(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
-  // Verificar CORS
-  const corsResponse = corsMiddleware(req)
-  if (corsResponse) return corsResponse
-
-  try {
-    await dbConnect()
-
-    const { params } = await contextPromise
-    const userId = params.id
-    const body = await req.json()
-
-    const currentUser = await User.findById(userId).populate("plan")
-    if (!currentUser) {
-      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
-    }
-
-    const planChanged = currentUser.plan?._id?.toString() !== body.plan
-    const updateData: any = {}
-
-    // Actualizar los campos que vienen en el body
-    if (body.cedula) updateData.cedula = body.cedula
-    if (body.nombre) updateData.nombre = body.nombre
-    if (body.email) updateData.email = body.email
-    if (body.telefono) updateData.telefono = body.telefono
-    if (body.direccion) updateData.direccion = body.direccion
-    if (body.fechaNacimiento) updateData.fechaNacimiento = body.fechaNacimiento
-    if (body.estado) updateData.estado = body.estado
-
-    if (body.plan) {
-      if (body.plan === "diaUnico") {
-        updateData.fechaInicio = body.fechaInicio || new Date()
-        updateData.fechaFin = body.fechaInicio || new Date()
-      } else {
-        updateData.plan = body.plan
-        if (planChanged) {
-          const plan = await Plan.findById(body.plan)
-          if (plan) {
-            updateData.montoPagado = body.montoPagado || 0
+      // Manejar plan y fechas
+      if (body.plan) {
+        if (body.plan === "diaUnico") {
+          updateData.fechaInicio = body.fechaInicio || new Date()
+          updateData.fechaFin = body.fechaInicio || new Date()
+          // Para día único, no asignamos un plan real
+          updateData.plan = null
+        } else {
+          updateData.plan = body.plan
+          if (planChanged) {
+            const plan = await Plan.findById(body.plan)
+            if (plan) {
+              updateData.montoPagado = body.montoPagado || 0
+            }
           }
         }
       }
-    }
 
-    if (body.fechaInicio) updateData.fechaInicio = body.fechaInicio
-    if (body.fechaFin) updateData.fechaFin = body.fechaFin
-    if (body.montoPagado !== undefined) updateData.montoPagado = Number(body.montoPagado)
+      // Actualizar fechas y monto pagado
+      if (body.fechaInicio) updateData.fechaInicio = body.fechaInicio
+      if (body.fechaFin) updateData.fechaFin = body.fechaFin
+      if (body.montoPagado !== undefined) updateData.montoPagado = Number(body.montoPagado)
 
-    const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).populate("plan")
+      const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).populate("plan")
 
-    return NextResponse.json({ user: updatedUser })
-  } catch (error) {
-    console.error("Error en PUT:", error)
-    return NextResponse.json({ error: "Error al actualizar usuario" }, { status: 500 })
-  }
+      // Registrar actividad
+      logActivity("admin", "actualizar_usuario", `Usuario actualizado: ${updatedUser.nombre}`)
+
+      return { user: updatedUser }
+    },
+    params,
+    { errorMessage: "Error al actualizar usuario" },
+  )
 }
 
-export async function DELETE(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
-  // Verificar CORS
-  const corsResponse = corsMiddleware(req)
-  if (corsResponse) return corsResponse
+// DELETE - Eliminar un usuario por ID
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  return apiHandler(
+    req,
+    async () => {
+      const userId = params.id
 
-  try {
-    await dbConnect()
+      const user = await User.findById(userId)
+      if (!user) {
+        throw new Error("Usuario no encontrado")
+      }
 
-    const { params } = await contextPromise
-    const userId = params.id
+      const deletedUser = await User.findByIdAndDelete(userId)
 
-    const deletedUser = await User.findByIdAndDelete(userId)
-    if (!deletedUser) {
-      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
-    }
+      // Registrar actividad
+      logActivity("admin", "eliminar_usuario", `Usuario eliminado: ${user.nombre}`)
 
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error("Error en DELETE:", error)
-    return NextResponse.json({ error: "Error al eliminar usuario" }, { status: 500 })
-  }
+      return { success: true, message: "Usuario eliminado correctamente" }
+    },
+    params,
+    { errorMessage: "Error al eliminar usuario" },
+  )
 }

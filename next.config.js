@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // Eliminamos output: 'export' para permitir API routes
+  // Eliminamos output: 'export' para permitir API routes y despliegue en Vercel
 
   // Ignorar completamente los errores de ESLint durante la compilación
   eslint: {

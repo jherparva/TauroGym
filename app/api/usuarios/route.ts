@@ -1,109 +1,80 @@
-import { type NextRequest, NextResponse } from "next/server"
-import dbConnect from "../../../lib/mongodb"
-import User from "../../../models/User"
-import Plan from "../../../models/Plan"
-import { corsMiddleware } from "../../../lib/cors"
+import type { NextRequest } from "next/server"
+import { User } from "../../../lib/models"
+import { apiHandler, logActivity } from "../../../lib/api-utils"
 
-// Manejador para POST que puede realizar operaciones PUT y DELETE
+// GET - Obtener todos los usuarios
+export async function GET(req: NextRequest) {
+  return apiHandler(req, async (req) => {
+    // Obtener parámetros de consulta
+    const url = new URL(req.url)
+    const query = url.searchParams.get("query") || ""
+    const estado = url.searchParams.get("estado") || ""
+
+    // Construir filtro de búsqueda
+    let filter: any = {}
+    if (query) {
+      filter = {
+        $or: [
+          { nombre: { $regex: query, $options: "i" } },
+          { cedula: { $regex: query, $options: "i" } },
+          { email: { $regex: query, $options: "i" } },
+        ],
+      }
+    }
+
+    // Añadir filtro por estado si se proporciona
+    if (estado) {
+      filter.estado = estado
+    }
+
+    // Obtener usuarios con sus planes
+    const users = await User.find(filter).populate("plan").sort({ createdAt: -1 })
+
+    return { users }
+  })
+}
+
+// POST - Crear un nuevo usuario
 export async function POST(req: NextRequest) {
-  // Verificar CORS
-  const corsResponse = corsMiddleware(req)
-  if (corsResponse) return corsResponse
+  return apiHandler(
+    req,
+    async (req) => {
+      const body = await req.json()
 
-  try {
-    await dbConnect()
-
-    const body = await req.json()
-    const { _method, userId, ...data } = body
-
-    // Si es una operación de actualización (PUT)
-    if (_method === "PUT" && userId) {
-      const currentUser = await User.findById(userId).populate("plan")
-      if (!currentUser) {
-        return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
+      // Validar datos requeridos
+      if (!body.cedula || !body.nombre || !body.telefono) {
+        throw new Error("Faltan campos requeridos: cédula, nombre y teléfono son obligatorios")
       }
 
-      const updateData: any = {}
-
-      // Actualizar los campos que vienen en el body
-      if (data.cedula) updateData.cedula = data.cedula
-      if (data.nombre) updateData.nombre = data.nombre
-      if (data.email) updateData.email = data.email
-      if (data.telefono) updateData.telefono = data.telefono
-      if (data.direccion) updateData.direccion = data.direccion
-      if (data.fechaNacimiento) updateData.fechaNacimiento = data.fechaNacimiento
-      if (data.estado) updateData.estado = data.estado
-
-      if (data.plan) {
-        if (data.plan === "diaUnico") {
-          updateData.fechaInicio = data.fechaInicio || new Date()
-          updateData.fechaFin = data.fechaInicio || new Date()
-        } else {
-          updateData.plan = data.plan
-          const planChanged = currentUser.plan?._id?.toString() !== data.plan
-          if (planChanged) {
-            const plan = await Plan.findById(data.plan)
-            if (plan) {
-              updateData.montoPagado = data.montoPagado || 0
-            }
-          }
-        }
+      // Verificar si ya existe un usuario con la misma cédula
+      const existingUser = await User.findOne({ cedula: body.cedula })
+      if (existingUser) {
+        throw new Error("Ya existe un usuario con esta cédula")
       }
 
-      if (data.fechaInicio) updateData.fechaInicio = data.fechaInicio
-      if (data.fechaFin) updateData.fechaFin = data.fechaFin
-      if (data.montoPagado !== undefined) updateData.montoPagado = Number(data.montoPagado)
-
-      const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).populate("plan")
-
-      return NextResponse.json({ user: updatedUser })
-    }
-
-    // Si es una operación de eliminación (DELETE)
-    if (_method === "DELETE" && userId) {
-      const deletedUser = await User.findByIdAndDelete(userId)
-      if (!deletedUser) {
-        return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
+      // Crear el usuario con montoPagado inicializado en 0
+      const userData = {
+        cedula: body.cedula,
+        nombre: body.nombre,
+        email: body.email,
+        telefono: body.telefono,
+        direccion: body.direccion,
+        estado: body.estado || "activo",
+        fechaNacimiento: body.fechaNacimiento,
+        plan: body.plan || null,
+        fechaInicio: body.fechaInicio || null,
+        fechaFin: body.fechaFin || null,
+        montoPagado: 0, // Inicializar montoPagado en 0
       }
 
-      return NextResponse.json({ success: true })
-    }
+      const user = await User.create(userData)
 
-    // Si es una operación de creación (POST normal)
-    // Validar datos requeridos
-    if (!data.cedula || !data.nombre || !data.telefono) {
-      return NextResponse.json(
-        { error: "Faltan campos requeridos: cédula, nombre y teléfono son obligatorios" },
-        { status: 400 },
-      )
-    }
+      // Registrar actividad
+      logActivity("admin", "crear_usuario", `Usuario creado: ${user.nombre}`)
 
-    // Verificar si ya existe un usuario con la misma cédula
-    const existingUser = await User.findOne({ cedula: data.cedula })
-    if (existingUser) {
-      return NextResponse.json({ error: "Ya existe un usuario con esta cédula" }, { status: 400 })
-    }
-
-    // Crear el usuario con montoPagado inicializado en 0
-    const userData = {
-      cedula: data.cedula,
-      nombre: data.nombre,
-      email: data.email,
-      telefono: data.telefono,
-      direccion: data.direccion,
-      estado: data.estado || "activo",
-      fechaNacimiento: data.fechaNacimiento,
-      plan: data.plan || null,
-      fechaInicio: data.fechaInicio || null,
-      fechaFin: data.fechaFin || null,
-      montoPagado: 0, // Inicializar montoPagado en 0
-    }
-
-    const user = await User.create(userData)
-
-    return NextResponse.json({ user }, { status: 201 })
-  } catch (error) {
-    console.error("Error en POST:", error)
-    return NextResponse.json({ error: "Error al procesar la solicitud" }, { status: 500 })
-  }
+      return { user }
+    },
+    undefined,
+    { errorMessage: "Error al crear usuario" },
+  )
 }

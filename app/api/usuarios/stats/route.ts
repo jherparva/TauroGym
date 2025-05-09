@@ -1,75 +1,91 @@
-//C:\Users\jhon\Music\TauroGym\app\api\usuarios\stats\route.ts
+import type { NextRequest } from "next/server"
+import { User } from "../../../../lib/models"
+import { apiHandler } from "../../../../lib/api-utils"
+import { startOfMonth, endOfMonth, subMonths } from "date-fns"
 
-import { type NextRequest, NextResponse } from "next/server"
-import dbConnect from "../../../../lib/mongodb"
-import User from "../../../../models/User"
-import { format, parse, startOfMonth } from "date-fns"
-import { es } from "date-fns/locale"
-
+// GET - Obtener estadísticas de usuarios
 export async function GET(req: NextRequest) {
-  try {
-    await dbConnect()
-
+  return apiHandler(req, async (req) => {
     // Obtener parámetros de consulta
     const url = new URL(req.url)
-    const desde = url.searchParams.get("desde")
-    const hasta = url.searchParams.get("hasta")
+    const periodo = url.searchParams.get("periodo") || "mes"
 
-    // Convertir fechas
-    const fromDate = desde ? new Date(desde) : new Date(new Date().getFullYear(), 0, 1) // Desde el inicio del año actual
-    const toDate = hasta ? new Date(hasta) : new Date() // Hasta hoy
+    // Calcular fechas para el período
+    const hoy = new Date()
+    let fechaInicio: Date
+    let fechaFin: Date = hoy
 
-    // Obtener todos los usuarios activos
-    const users = await User.find({
-      estado: "activo",
-      fechaInicio: { $gte: fromDate, $lte: toDate },
-    }).populate("plan")
-
-    // Agrupar usuarios por mes de inicio
-    const usersByMonth: Record<string, { count: number; revenue: number }> = {}
-
-    // Inicializar todos los meses en el rango
-    let currentDate = startOfMonth(fromDate)
-    while (currentDate <= toDate) {
-      const monthKey = format(currentDate, "MMM", { locale: es })
-      usersByMonth[monthKey] = { count: 0, revenue: 0 }
-      currentDate = startOfMonth(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
+    switch (periodo) {
+      case "mes":
+        fechaInicio = startOfMonth(hoy)
+        fechaFin = endOfMonth(hoy)
+        break
+      case "trimestre":
+        fechaInicio = startOfMonth(subMonths(hoy, 2))
+        break
+      case "semestre":
+        fechaInicio = startOfMonth(subMonths(hoy, 5))
+        break
+      case "anual":
+        fechaInicio = startOfMonth(subMonths(hoy, 11))
+        break
+      default:
+        fechaInicio = startOfMonth(hoy)
+        fechaFin = endOfMonth(hoy)
     }
 
-    // Contar usuarios y sumar ingresos por mes
-    users.forEach((user) => {
-      if (user.fechaInicio) {
-        const fechaInicio = new Date(user.fechaInicio)
-        const monthKey = format(fechaInicio, "MMM", { locale: es })
+    // Obtener estadísticas generales
+    const totalUsuarios = await User.countDocuments()
+    const usuariosActivos = await User.countDocuments({ estado: "activo" })
+    const usuariosInactivos = await User.countDocuments({ estado: "inactivo" })
 
-        if (usersByMonth[monthKey]) {
-          usersByMonth[monthKey].count += 1
-          usersByMonth[monthKey].revenue += user.montoPagado || 0
-        }
+    // Obtener usuarios registrados en el período
+    const usuariosNuevos = await User.countDocuments({
+      createdAt: { $gte: fechaInicio, $lte: fechaFin },
+    })
+
+    // Obtener usuarios con planes activos
+    const usuariosConPlan = await User.countDocuments({
+      plan: { $ne: null },
+      fechaFin: { $gte: hoy },
+      estado: "activo",
+    })
+
+    // Obtener usuarios con planes por vencer en los próximos 7 días
+    const fechaLimite = new Date()
+    fechaLimite.setDate(fechaLimite.getDate() + 7)
+    const usuariosPorVencer = await User.countDocuments({
+      plan: { $ne: null },
+      fechaFin: { $gte: hoy, $lte: fechaLimite },
+      estado: "activo",
+    })
+
+    // Calcular ingresos totales
+    const usuarios = await User.find().populate("plan")
+    const ingresosTotales = usuarios.reduce((total, user) => total + (user.montoPagado || 0), 0)
+
+    // Calcular ingresos pendientes
+    const ingresosPendientes = usuarios.reduce((total, user) => {
+      if (user.plan && user.montoPagado < user.plan.precio) {
+        return total + (user.plan.precio - user.montoPagado)
       }
-    })
+      return total
+    }, 0)
 
-    // Convertir a formato para gráfico
-    const membershipData = Object.entries(usersByMonth).map(([date, data]) => ({
-      date,
-      value: data.count,
-      revenue: data.revenue,
-    }))
-
-    // Ordenar por fecha
-    membershipData.sort((a, b) => {
-      const monthA = parse(a.date, "MMM", new Date(), { locale: es }).getMonth()
-      const monthB = parse(b.date, "MMM", new Date(), { locale: es }).getMonth()
-      return monthA - monthB
-    })
-
-    return NextResponse.json({
-      membershipData,
-      totalUsers: users.length,
-      totalRevenue: users.reduce((sum, user) => sum + (user.montoPagado || 0), 0),
-    })
-  } catch (error) {
-    console.error("Error en GET /api/usuarios/stats:", error)
-    return NextResponse.json({ error: "Error al obtener estadísticas de usuarios" }, { status: 500 })
-  }
+    return {
+      stats: {
+        totalUsuarios,
+        usuariosActivos,
+        usuariosInactivos,
+        usuariosNuevos,
+        usuariosConPlan,
+        usuariosPorVencer,
+        ingresosTotales,
+        ingresosPendientes,
+        periodo,
+        fechaInicio,
+        fechaFin,
+      },
+    }
+  })
 }

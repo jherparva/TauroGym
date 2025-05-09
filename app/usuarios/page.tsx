@@ -12,6 +12,7 @@ import { UserSearch } from "../../components/usuarios/user-search"
 import { UserTable } from "../../components/usuarios/user-table"
 import { UserEditDialog } from "../../components/usuarios/user-edit-dialog"
 import { UserViewDialog } from "../../components/usuarios/user-view-dialog"
+import { SafeHydrate } from "../../components/safe-hydrate"
 
 // Interfaces
 interface Usuario {
@@ -69,16 +70,31 @@ export default function UsuariosPage() {
   })
 
   // Estados para filtros
-  const [fechaInicio, setFechaInicio] = useState<Date>(startOfMonth(new Date()))
-  const [fechaFin, setFechaFin] = useState<Date>(endOfMonth(new Date()))
-  const [mesActual, setMesActual] = useState<Date>(new Date())
+  const [fechaInicio, setFechaInicio] = useState<Date>(() => startOfMonth(new Date()))
+  const [fechaFin, setFechaFin] = useState<Date>(() => endOfMonth(new Date()))
+  const [mesActual, setMesActual] = useState<Date>(() => new Date())
+  const [error, setError] = useState<string | null>(null)
 
   // Funciones para usuarios
   const fetchUsers = async () => {
     try {
       setLoadingUsers(true)
-      const response = await fetch(`/api/usuarios${searchQuery ? `?query=${searchQuery}` : ""}`)
-      if (!response.ok) throw new Error("Error al cargar usuarios")
+      setError(null)
+
+      // Construir la URL con parámetros de fecha
+      const fechaInicioStr = fechaInicio.toISOString().split("T")[0]
+      const fechaFinStr = fechaFin.toISOString().split("T")[0]
+      const url = `/api/usuarios${searchQuery ? `?query=${searchQuery}` : "?"}${searchQuery ? "&" : ""}desde=${fechaInicioStr}&hasta=${fechaFinStr}`
+
+      console.log("Fetching users from:", url)
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("Error response:", errorText)
+        throw new Error(`Error al cargar usuarios: ${response.status} ${errorText || response.statusText}`)
+      }
+
       const data = await response.json()
 
       // Verificar que data.users existe y es un array
@@ -158,9 +174,10 @@ export default function UsuariosPage() {
       }
     } catch (error) {
       console.error("Error:", error)
+      setError(error instanceof Error ? error.message : "Error desconocido al cargar usuarios")
       toast({
         title: "Error",
-        description: "No se pudieron cargar los usuarios",
+        description: error instanceof Error ? error.message : "No se pudieron cargar los usuarios",
         variant: "destructive",
       })
       setUsers([])
@@ -172,7 +189,10 @@ export default function UsuariosPage() {
   const fetchPlans = async () => {
     try {
       const response = await fetch("/api/planes?estado=activo")
-      if (!response.ok) throw new Error("Error al cargar planes")
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Error al cargar planes: ${response.status} ${errorText || response.statusText}`)
+      }
       const data = await response.json()
 
       if (!data.planes || !Array.isArray(data.planes)) {
@@ -183,6 +203,11 @@ export default function UsuariosPage() {
       }
     } catch (error) {
       console.error("Error:", error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "No se pudieron cargar los planes",
+        variant: "destructive",
+      })
       setPlans([])
     }
   }
@@ -241,7 +266,8 @@ export default function UsuariosPage() {
       // Primero obtenemos los datos actuales del usuario
       const response = await fetch(`/api/usuarios/${userId}`)
       if (!response.ok) {
-        throw new Error("Error al obtener datos del usuario")
+        const errorText = await response.text()
+        throw new Error(`Error al obtener datos del usuario: ${response.status} ${errorText || response.statusText}`)
       }
 
       const userData = await response.json()
@@ -255,7 +281,7 @@ export default function UsuariosPage() {
       const nuevoMontoPagado = (user.montoPagado || 0) + montoAbono
 
       // Actualizar el usuario con el nuevo monto pagado
-      await fetch(`/api/usuarios/${userId}`, {
+      const updateResponse = await fetch(`/api/usuarios/${userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -264,6 +290,13 @@ export default function UsuariosPage() {
           montoPagado: nuevoMontoPagado,
         }),
       })
+
+      if (!updateResponse.ok) {
+        const errorText = await updateResponse.text()
+        throw new Error(
+          `Error al actualizar usuario: ${updateResponse.status} ${errorText || updateResponse.statusText}`,
+        )
+      }
 
       // Recargar usuarios
       await fetchUsers()
@@ -304,7 +337,7 @@ export default function UsuariosPage() {
     fetchPlans()
   }, [])
 
-  // Actualizar búsqueda de usuarios
+  // Actualizar búsqueda de usuarios cuando cambian los filtros
   useEffect(() => {
     // Debounce para la búsqueda automática
     const timeoutId = setTimeout(() => {
@@ -312,15 +345,10 @@ export default function UsuariosPage() {
     }, 300)
 
     return () => clearTimeout(timeoutId)
-  }, [searchQuery])
+  }, [searchQuery, fechaInicio, fechaFin])
 
   // Filtrar usuarios por fecha
-  const usuariosFiltrados = users.filter((user) => {
-    if (!user.fechaInicio) return true
-
-    const fechaUsuario = new Date(user.fechaInicio)
-    return fechaUsuario >= fechaInicio && fechaUsuario <= fechaFin
-  })
+  const usuariosFiltrados = users
 
   // Calcular totales
   const totalUsuariosActivos = usuariosFiltrados.filter((u) => u.estado === "activo").length
@@ -331,56 +359,66 @@ export default function UsuariosPage() {
   ).length
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      {/* Encabezado principal */}
-      <UserHeader />
+    <SafeHydrate>
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Encabezado principal */}
+        <UserHeader />
 
-      {/* Sección de estadísticas */}
-      <UserStats
-        totalUsuariosActivos={totalUsuariosActivos}
-        totalIngresos={totalIngresos}
-        totalPendiente={totalPendiente}
-        usuariosConAbono={usuariosConAbono}
-      />
+        {/* Mensaje de error */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            <p className="font-bold">Error:</p>
+            <p>{error}</p>
+          </div>
+        )}
 
-      {/* Sección de acciones principales */}
-      <UserActions fetchUsers={fetchUsers} loadingUsers={loadingUsers} plans={plans} onPagoCreado={fetchUsers} />
+        {/* Sección de estadísticas */}
+        <UserStats
+          totalUsuariosActivos={totalUsuariosActivos}
+          totalIngresos={totalIngresos}
+          totalPendiente={totalPendiente}
+          usuariosConAbono={usuariosConAbono}
+        />
 
-      {/* Sección de búsqueda y filtros */}
-      <UserSearch
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        mesActual={mesActual}
-        cambiarMes={cambiarMes}
-        restablecerFiltros={restablecerFiltros}
-      />
+        {/* Sección de acciones principales */}
+        <UserActions fetchUsers={fetchUsers} loadingUsers={loadingUsers} plans={plans} onPagoCreado={fetchUsers} />
 
-      {/* Tabla de usuarios */}
-      <UserTable
-        loadingUsers={loadingUsers}
-        usuariosFiltrados={usuariosFiltrados}
-        openViewDialog={openViewDialog}
-        openEditDialog={openEditDialog}
-        handleDeleteUser={handleDeleteUser}
-      />
+        {/* Sección de búsqueda y filtros */}
+        <UserSearch
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          mesActual={mesActual}
+          cambiarMes={cambiarMes}
+          restablecerFiltros={restablecerFiltros}
+        />
 
-      {/* Dialog para editar usuario */}
-      <UserEditDialog
-        currentUser={currentUser}
-        setCurrentUser={setCurrentUser}
-        formData={formData}
-        setFormData={setFormData}
-        plans={plans}
-        fetchUsers={fetchUsers}
-      />
+        {/* Tabla de usuarios */}
+        <UserTable
+          loadingUsers={loadingUsers}
+          usuariosFiltrados={usuariosFiltrados}
+          openViewDialog={openViewDialog}
+          openEditDialog={openEditDialog}
+          handleDeleteUser={handleDeleteUser}
+        />
 
-      {/* Dialog para ver detalles del usuario */}
-      <UserViewDialog
-        viewUser={viewUser}
-        setViewUser={setViewUser}
-        openEditDialog={openEditDialog}
-        handleAbonoUser={handleAbonoUser}
-      />
-    </div>
+        {/* Dialog para editar usuario */}
+        <UserEditDialog
+          currentUser={currentUser}
+          setCurrentUser={setCurrentUser}
+          formData={formData}
+          setFormData={setFormData}
+          plans={plans}
+          fetchUsers={fetchUsers}
+        />
+
+        {/* Dialog para ver detalles del usuario */}
+        <UserViewDialog
+          viewUser={viewUser}
+          setViewUser={setViewUser}
+          openEditDialog={openEditDialog}
+          handleAbonoUser={handleAbonoUser}
+        />
+      </div>
+    </SafeHydrate>
   )
 }

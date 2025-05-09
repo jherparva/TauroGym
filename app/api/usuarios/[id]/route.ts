@@ -7,11 +7,10 @@ import Plan from "../../../../models/Plan"
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    console.log("GET usuario con ID:", params.id)
     await dbConnect()
 
     const userId = params.id
-    console.log("GET usuario con ID:", userId)
-
     const user = await User.findById(userId).populate("plan")
 
     if (!user) {
@@ -28,11 +27,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    console.log("PUT usuario con ID:", params.id)
     await dbConnect()
 
     const userId = params.id
-    console.log("PUT usuario con ID:", userId)
-
     const body = await req.json()
     console.log("Datos recibidos:", body)
 
@@ -46,11 +44,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const updateData: any = {}
 
     // Copiar todos los campos actualizables
-    if (body.cedula) updateData.cedula = body.cedula
-    if (body.nombre) updateData.nombre = body.nombre
-    if (body.email) updateData.email = body.email
-    if (body.telefono) updateData.telefono = body.telefono
-    if (body.direccion) updateData.direccion = body.direccion
+    if (body.cedula !== undefined) updateData.cedula = body.cedula
+    if (body.nombre !== undefined) updateData.nombre = body.nombre
+    if (body.email !== undefined) updateData.email = body.email
+    if (body.telefono !== undefined) updateData.telefono = body.telefono
+    if (body.direccion !== undefined) updateData.direccion = body.direccion
 
     if (body.plan) {
       if (body.plan === "diaUnico") {
@@ -86,12 +84,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    console.log("DELETE usuario con ID:", params.id)
     await dbConnect()
 
     const userId = params.id
-    console.log("DELETE usuario con ID:", userId)
-
     const deletedUser = await User.findByIdAndDelete(userId)
+
     if (!deletedUser) {
       console.log("Usuario no encontrado para eliminar:", userId)
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
@@ -104,3 +102,4 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ error: "Error al eliminar usuario" }, { status: 500 })
   }
 }
+

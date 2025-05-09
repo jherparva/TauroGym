@@ -13,19 +13,20 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url)
     const query = url.searchParams.get("query") || ""
     const estado = url.searchParams.get("estado") || ""
+    const desde = url.searchParams.get("desde") || ""
+    const hasta = url.searchParams.get("hasta") || ""
 
-    console.log("Parámetros de búsqueda:", { query, estado })
+    console.log("Parámetros de búsqueda:", { query, estado, desde, hasta })
 
     // Construir filtro de búsqueda
-    let filter: any = {}
+    const filter: any = {}
+
     if (query) {
-      filter = {
-        $or: [
-          { nombre: { $regex: query, $options: "i" } },
-          { cedula: { $regex: query, $options: "i" } },
-          { email: { $regex: query, $options: "i" } },
-        ],
-      }
+      filter.$or = [
+        { nombre: { $regex: query, $options: "i" } },
+        { cedula: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+      ]
     }
 
     // Añadir filtro por estado si se proporciona
@@ -33,7 +34,20 @@ export async function GET(req: NextRequest) {
       filter.estado = estado
     }
 
-    console.log("Filtro de búsqueda:", filter)
+    // Añadir filtro por fechas si se proporcionan
+    if (desde || hasta) {
+      filter.fechaInicio = {}
+
+      if (desde) {
+        filter.fechaInicio.$gte = new Date(desde)
+      }
+
+      if (hasta) {
+        filter.fechaInicio.$lte = new Date(hasta)
+      }
+    }
+
+    console.log("Filtro de búsqueda:", JSON.stringify(filter, null, 2))
 
     // Obtener usuarios con sus planes
     const users = await User.find(filter).populate("plan").sort({ createdAt: -1 })
@@ -95,3 +109,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Error al crear usuario" }, { status: 500 })
   }
 }
+

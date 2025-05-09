@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic'
+//C:\Users\jhon\Music\TauroGym\app\api\usuarios\route.ts
 
 import { type NextRequest, NextResponse } from "next/server"
 import dbConnect from "../../../lib/mongodb"
@@ -6,12 +6,15 @@ import User from "../../../models/User"
 
 export async function GET(req: NextRequest) {
   try {
+    console.log("Iniciando GET /api/usuarios")
     await dbConnect()
 
     // Obtener parámetros de consulta
     const url = new URL(req.url)
     const query = url.searchParams.get("query") || ""
     const estado = url.searchParams.get("estado") || ""
+
+    console.log("Parámetros de búsqueda:", { query, estado })
 
     // Construir filtro de búsqueda
     let filter: any = {}
@@ -30,8 +33,11 @@ export async function GET(req: NextRequest) {
       filter.estado = estado
     }
 
+    console.log("Filtro de búsqueda:", filter)
+
     // Obtener usuarios con sus planes
     const users = await User.find(filter).populate("plan").sort({ createdAt: -1 })
+    console.log(`Se encontraron ${users.length} usuarios`)
 
     return NextResponse.json({ users })
   } catch (error) {
@@ -42,12 +48,15 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("Iniciando POST /api/usuarios")
     await dbConnect()
 
     const body = await req.json()
+    console.log("Datos recibidos:", body)
 
     // Validar datos requeridos
     if (!body.cedula || !body.nombre || !body.telefono) {
+      console.log("Faltan campos requeridos")
       return NextResponse.json(
         { error: "Faltan campos requeridos: cédula, nombre y teléfono son obligatorios" },
         { status: 400 },
@@ -57,6 +66,7 @@ export async function POST(req: NextRequest) {
     // Verificar si ya existe un usuario con la misma cédula
     const existingUser = await User.findOne({ cedula: body.cedula })
     if (existingUser) {
+      console.log("Ya existe un usuario con esta cédula:", body.cedula)
       return NextResponse.json({ error: "Ya existe un usuario con esta cédula" }, { status: 400 })
     }
 
@@ -75,7 +85,9 @@ export async function POST(req: NextRequest) {
       montoPagado: 0, // Inicializar montoPagado en 0
     }
 
+    console.log("Creando usuario con datos:", userData)
     const user = await User.create(userData)
+    console.log("Usuario creado correctamente con ID:", user._id)
 
     return NextResponse.json({ user }, { status: 201 })
   } catch (error) {

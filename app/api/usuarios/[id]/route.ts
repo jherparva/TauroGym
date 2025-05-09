@@ -1,19 +1,21 @@
-export const dynamic = 'force-dynamic'
+//C:\Users\jhon\Music\TauroGym\app\api\usuarios\[id]\route.ts
 
 import { type NextRequest, NextResponse } from "next/server"
 import dbConnect from "../../../../lib/mongodb"
 import User from "../../../../models/User"
 import Plan from "../../../../models/Plan"
 
-export async function GET(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     await dbConnect()
 
-    const { params } = await contextPromise
     const userId = params.id
+    console.log("GET usuario con ID:", userId)
+
     const user = await User.findById(userId).populate("plan")
 
     if (!user) {
+      console.log("Usuario no encontrado:", userId)
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
@@ -24,21 +26,31 @@ export async function GET(req: NextRequest, contextPromise: Promise<{ params: { 
   }
 }
 
-export async function PUT(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     await dbConnect()
 
-    const { params } = await contextPromise
     const userId = params.id
+    console.log("PUT usuario con ID:", userId)
+
     const body = await req.json()
+    console.log("Datos recibidos:", body)
 
     const currentUser = await User.findById(userId).populate("plan")
     if (!currentUser) {
+      console.log("Usuario no encontrado para actualizar:", userId)
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
     const planChanged = currentUser.plan?._id?.toString() !== body.plan
     const updateData: any = {}
+
+    // Copiar todos los campos actualizables
+    if (body.cedula) updateData.cedula = body.cedula
+    if (body.nombre) updateData.nombre = body.nombre
+    if (body.email) updateData.email = body.email
+    if (body.telefono) updateData.telefono = body.telefono
+    if (body.direccion) updateData.direccion = body.direccion
 
     if (body.plan) {
       if (body.plan === "diaUnico") {
@@ -60,7 +72,10 @@ export async function PUT(req: NextRequest, contextPromise: Promise<{ params: { 
     if (body.montoPagado !== undefined) updateData.montoPagado = Number(body.montoPagado)
     if (body.estado) updateData.estado = body.estado
 
+    console.log("Datos a actualizar:", updateData)
+
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).populate("plan")
+    console.log("Usuario actualizado correctamente")
 
     return NextResponse.json({ user: updatedUser })
   } catch (error) {
@@ -69,18 +84,20 @@ export async function PUT(req: NextRequest, contextPromise: Promise<{ params: { 
   }
 }
 
-export async function DELETE(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     await dbConnect()
 
-    const { params } = await contextPromise
     const userId = params.id
+    console.log("DELETE usuario con ID:", userId)
 
     const deletedUser = await User.findByIdAndDelete(userId)
     if (!deletedUser) {
+      console.log("Usuario no encontrado para eliminar:", userId)
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
+    console.log("Usuario eliminado correctamente")
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error en DELETE:", error)

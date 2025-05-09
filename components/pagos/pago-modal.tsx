@@ -1,3 +1,5 @@
+//C:\Users\jhon\Music\TauroGym\components\pagos\pago-modal.tsx
+
 "use client"
 
 import type React from "react"

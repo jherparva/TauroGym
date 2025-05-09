@@ -5,50 +5,75 @@ import dbConnect from "../../../../lib/mongodb"
 import User from "../../../../models/User"
 import Plan from "../../../../models/Plan"
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    console.log("GET usuario con ID:", params.id)
-    await dbConnect()
+// Función auxiliar para obtener el ID de usuario de la URL
+function getUserIdFromUrl(request: NextRequest): string | null {
+  const url = new URL(request.url)
+  const pathParts = url.pathname.split("/")
+  return pathParts[pathParts.length - 1] || null
+}
 
-    const userId = params.id
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    console.log("Iniciando GET /api/usuarios/[id]")
+    await dbConnect()
+    console.log("Conexión a DB establecida")
+
+    // Obtener ID de usuario de los parámetros o de la URL
+    const userId = params?.id || getUserIdFromUrl(request)
+    console.log("ID de usuario:", userId)
+
+    if (!userId) {
+      console.log("Error: ID de usuario no proporcionado")
+      return NextResponse.json({ error: "ID de usuario no proporcionado" }, { status: 400 })
+    }
+
     const user = await User.findById(userId).populate("plan")
 
     if (!user) {
-      console.log("Usuario no encontrado:", userId)
+      console.log("Error: Usuario no encontrado")
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
+    console.log("Usuario encontrado exitosamente")
     return NextResponse.json({ user })
   } catch (error) {
-    console.error("Error en GET:", error)
-    return NextResponse.json({ error: "Error al obtener usuario" }, { status: 500 })
+    console.error("Error detallado en GET /api/usuarios/[id]:", error)
+    return NextResponse.json(
+      {
+        error: "Error al obtener usuario",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    )
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    console.log("PUT usuario con ID:", params.id)
+    console.log("Iniciando PUT /api/usuarios/[id]")
     await dbConnect()
+    console.log("Conexión a DB establecida")
 
-    const userId = params.id
-    const body = await req.json()
+    // Obtener ID de usuario de los parámetros o de la URL
+    const userId = params?.id || getUserIdFromUrl(request)
+    console.log("ID de usuario:", userId)
+
+    if (!userId) {
+      console.log("Error: ID de usuario no proporcionado")
+      return NextResponse.json({ error: "ID de usuario no proporcionado" }, { status: 400 })
+    }
+
+    const body = await request.json()
     console.log("Datos recibidos:", body)
 
     const currentUser = await User.findById(userId).populate("plan")
     if (!currentUser) {
-      console.log("Usuario no encontrado para actualizar:", userId)
+      console.log("Error: usuario no encontrado")
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
     const planChanged = currentUser.plan?._id?.toString() !== body.plan
     const updateData: any = {}
-
-    // Copiar todos los campos actualizables
-    if (body.cedula !== undefined) updateData.cedula = body.cedula
-    if (body.nombre !== undefined) updateData.nombre = body.nombre
-    if (body.email !== undefined) updateData.email = body.email
-    if (body.telefono !== undefined) updateData.telefono = body.telefono
-    if (body.direccion !== undefined) updateData.direccion = body.direccion
 
     if (body.plan) {
       if (body.plan === "diaUnico") {
@@ -70,36 +95,61 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     if (body.montoPagado !== undefined) updateData.montoPagado = Number(body.montoPagado)
     if (body.estado) updateData.estado = body.estado
 
-    console.log("Datos a actualizar:", updateData)
+    // Añadir campos adicionales si están presentes
+    if (body.cedula) updateData.cedula = body.cedula
+    if (body.nombre) updateData.nombre = body.nombre
+    if (body.email) updateData.email = body.email
+    if (body.telefono) updateData.telefono = body.telefono
+    if (body.direccion) updateData.direccion = body.direccion
 
+    console.log("Actualizando usuario con datos:", updateData)
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).populate("plan")
-    console.log("Usuario actualizado correctamente")
+    console.log("Usuario actualizado exitosamente")
 
     return NextResponse.json({ user: updatedUser })
   } catch (error) {
-    console.error("Error en PUT:", error)
-    return NextResponse.json({ error: "Error al actualizar usuario" }, { status: 500 })
+    console.error("Error detallado en PUT /api/usuarios/[id]:", error)
+    return NextResponse.json(
+      {
+        error: "Error al actualizar usuario",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    )
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    console.log("DELETE usuario con ID:", params.id)
+    console.log("Iniciando DELETE /api/usuarios/[id]")
     await dbConnect()
+    console.log("Conexión a DB establecida")
 
-    const userId = params.id
+    // Obtener ID de usuario de los parámetros o de la URL
+    const userId = params?.id || getUserIdFromUrl(request)
+    console.log("ID de usuario a eliminar:", userId)
+
+    if (!userId) {
+      console.log("Error: ID de usuario no proporcionado")
+      return NextResponse.json({ error: "ID de usuario no proporcionado" }, { status: 400 })
+    }
+
     const deletedUser = await User.findByIdAndDelete(userId)
-
     if (!deletedUser) {
-      console.log("Usuario no encontrado para eliminar:", userId)
+      console.log("Error: usuario no encontrado para eliminar")
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
-    console.log("Usuario eliminado correctamente")
+    console.log("Usuario eliminado exitosamente")
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Error en DELETE:", error)
-    return NextResponse.json({ error: "Error al eliminar usuario" }, { status: 500 })
+    console.error("Error detallado en DELETE /api/usuarios/[id]:", error)
+    return NextResponse.json(
+      {
+        error: "Error al eliminar usuario",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    )
   }
 }
-

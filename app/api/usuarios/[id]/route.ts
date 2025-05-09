@@ -2,21 +2,28 @@ import { type NextRequest, NextResponse } from "next/server"
 import dbConnect from "../../../../lib/mongodb"
 import User from "../../../../models/User"
 import Plan from "../../../../models/Plan"
-
-// Función para configurar los headers CORS
-function setCorsHeaders(response: NextResponse) {
-  response.headers.set("Access-Control-Allow-Origin", "*")
-  response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-  response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-  return response
-}
+import { corsMiddleware } from "../../../../lib/cors"
 
 // Manejador para OPTIONS (CORS preflight)
-export async function OPTIONS() {
-  return setCorsHeaders(new NextResponse(null, { status: 204 }))
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Credentials": "true",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,DELETE,PATCH,POST,PUT,OPTIONS",
+      "Access-Control-Allow-Headers":
+        "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization",
+      "Access-Control-Max-Age": "86400",
+    },
+  })
 }
 
 export async function GET(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
+  // Verificar CORS
+  const corsResponse = corsMiddleware(req)
+  if (corsResponse) return corsResponse
+
   try {
     await dbConnect()
 
@@ -25,17 +32,21 @@ export async function GET(req: NextRequest, contextPromise: Promise<{ params: { 
     const user = await User.findById(userId).populate("plan")
 
     if (!user) {
-      return setCorsHeaders(NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 }))
+      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
-    return setCorsHeaders(NextResponse.json({ user }))
+    return NextResponse.json({ user })
   } catch (error) {
     console.error("Error en GET:", error)
-    return setCorsHeaders(NextResponse.json({ error: "Error al obtener usuario" }, { status: 500 }))
+    return NextResponse.json({ error: "Error al obtener usuario" }, { status: 500 })
   }
 }
 
 export async function PUT(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
+  // Verificar CORS
+  const corsResponse = corsMiddleware(req)
+  if (corsResponse) return corsResponse
+
   try {
     await dbConnect()
 
@@ -45,7 +56,7 @@ export async function PUT(req: NextRequest, contextPromise: Promise<{ params: { 
 
     const currentUser = await User.findById(userId).populate("plan")
     if (!currentUser) {
-      return setCorsHeaders(NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 }))
+      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
     const planChanged = currentUser.plan?._id?.toString() !== body.plan
@@ -81,14 +92,18 @@ export async function PUT(req: NextRequest, contextPromise: Promise<{ params: { 
 
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).populate("plan")
 
-    return setCorsHeaders(NextResponse.json({ user: updatedUser }))
+    return NextResponse.json({ user: updatedUser })
   } catch (error) {
     console.error("Error en PUT:", error)
-    return setCorsHeaders(NextResponse.json({ error: "Error al actualizar usuario" }, { status: 500 }))
+    return NextResponse.json({ error: "Error al actualizar usuario" }, { status: 500 })
   }
 }
 
 export async function DELETE(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
+  // Verificar CORS
+  const corsResponse = corsMiddleware(req)
+  if (corsResponse) return corsResponse
+
   try {
     await dbConnect()
 
@@ -97,12 +112,12 @@ export async function DELETE(req: NextRequest, contextPromise: Promise<{ params:
 
     const deletedUser = await User.findByIdAndDelete(userId)
     if (!deletedUser) {
-      return setCorsHeaders(NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 }))
+      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
-    return setCorsHeaders(NextResponse.json({ success: true }))
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error en DELETE:", error)
-    return setCorsHeaders(NextResponse.json({ error: "Error al eliminar usuario" }, { status: 500 }))
+    return NextResponse.json({ error: "Error al eliminar usuario" }, { status: 500 })
   }
 }

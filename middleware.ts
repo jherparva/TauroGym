@@ -3,10 +3,42 @@ import type { NextRequest } from "next/server"
 import { decrypt } from "./lib/auth"
 
 export async function middleware(request: NextRequest) {
-  const session = request.cookies.get("session")?.value
+  // Manejar solicitudes OPTIONS para CORS preflight
+  if (request.method === "OPTIONS") {
+    return new NextResponse(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,DELETE,PATCH,POST,PUT,OPTIONS",
+        "Access-Control-Allow-Headers":
+          "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization",
+        "Access-Control-Max-Age": "86400",
+      },
+    })
+  }
+
+  // Verificar si la ruta es una API
+  const isApiRoute = request.nextUrl.pathname.startsWith("/api/")
+
+  // Si es una ruta de API, permitir el acceso y agregar headers CORS
+  if (isApiRoute) {
+    const response = NextResponse.next()
+    response.headers.set("Access-Control-Allow-Credentials", "true")
+    response.headers.set("Access-Control-Allow-Origin", "*")
+    response.headers.set("Access-Control-Allow-Methods", "GET,DELETE,PATCH,POST,PUT,OPTIONS")
+    response.headers.set(
+      "Access-Control-Allow-Headers",
+      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization",
+    )
+    return response
+  }
 
   // Verificar si la ruta es la de login
   const isLoginPage = request.nextUrl.pathname === "/login"
+
+  // Obtener la sesión
+  const session = request.cookies.get("session")?.value
 
   // Si no hay sesión y no estamos en la página de login, redirigir a login
   if (!session && !isLoginPage) {
@@ -34,15 +66,14 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next()
 }
 
-// Configurar las rutas que deben ser protegidas, excluyendo todas las rutas API
+// Configurar las rutas que deben ser protegidas
 export const config = {
   matcher: [
     /*
      * Coincide con todas las rutas excepto:
-     * 1. /api/* (todas las rutas de API)
-     * 2. /_next/* (archivos estáticos de Next.js)
-     * 3. /favicon.ico, /sitemap.xml, /robots.txt (archivos comunes)
+     * 1. /_next/* (archivos estáticos de Next.js)
+     * 2. /favicon.ico, /sitemap.xml, /robots.txt (archivos comunes)
      */
-    "/((?!api|_next|favicon.ico|sitemap.xml|robots.txt).*)",
+    "/((?!_next|favicon.ico|sitemap.xml|robots.txt).*)",
   ],
 }

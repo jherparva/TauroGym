@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Eliminamos o comentamos la opción output: 'export' si existe
-  // output: 'export',
+
+  // Eliminamos output: 'export' para permitir API routes
 
   // Ignorar completamente los errores de ESLint durante la compilación
   eslint: {
@@ -29,6 +29,26 @@ const nextConfig = {
   experimental: {
     scrollRestoration: true,
   },
+
+  // CONFIGURACIÓN CLAVE: Headers para CORS
+  async headers() {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Credentials", value: "true" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET,DELETE,PATCH,POST,PUT,OPTIONS" },
+          {
+            key: "Access-Control-Allow-Headers",
+            value:
+              "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization",
+          },
+        ],
+      },
+    ]
+  },
+
   // Configuración adicional para resolver problemas de importación
   webpack: (config, { isServer }) => {
     // Configuración para resolver problemas de importación de componentes

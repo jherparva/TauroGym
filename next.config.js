@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Eliminamos o comentamos la opción output: 'export' si existe
+  // output: 'export',
+
   // Ignorar completamente los errores de ESLint durante la compilación
   eslint: {
     ignoreDuringBuilds: true,
@@ -21,7 +24,7 @@ const nextConfig = {
     unoptimized: true,
   },
   compiler: {
-    removeConsole: false, // Cambiar a false para mantener los console.log en producción
+    removeConsole: process.env.NODE_ENV === "production",
   },
   experimental: {
     scrollRestoration: true,
@@ -38,25 +41,6 @@ const nextConfig = {
   // Asegurarse de que los estilos se carguen correctamente
   poweredByHeader: false,
   swcMinify: true,
-  // Configuración de headers para CORS
-  async headers() {
-    return [
-      {
-        // Aplicar estos encabezados a todas las rutas API
-        source: "/api/:path*",
-        headers: [
-          { key: "Access-Control-Allow-Credentials", value: "true" },
-          { key: "Access-Control-Allow-Origin", value: "*" },
-          { key: "Access-Control-Allow-Methods", value: "GET,DELETE,PATCH,POST,PUT,OPTIONS" },
-          {
-            key: "Access-Control-Allow-Headers",
-            value:
-              "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization",
-          },
-        ],
-      },
-    ]
-  },
 }
 
 module.exports = nextConfig

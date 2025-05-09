@@ -5,70 +5,35 @@ import dbConnect from "../../../../lib/mongodb"
 import User from "../../../../models/User"
 import Plan from "../../../../models/Plan"
 
-// Función auxiliar para obtener el ID de usuario de la URL
-function getUserIdFromUrl(request: NextRequest): string | null {
-  const url = new URL(request.url)
-  const pathParts = url.pathname.split("/")
-  return pathParts[pathParts.length - 1] || null
-}
-
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
   try {
-    console.log("Iniciando GET /api/usuarios/[id]")
     await dbConnect()
-    console.log("Conexión a DB establecida")
 
-    // Obtener ID de usuario de los parámetros o de la URL
-    const userId = params?.id || getUserIdFromUrl(request)
-    console.log("ID de usuario:", userId)
-
-    if (!userId) {
-      console.log("Error: ID de usuario no proporcionado")
-      return NextResponse.json({ error: "ID de usuario no proporcionado" }, { status: 400 })
-    }
-
+    const { params } = await contextPromise
+    const userId = params.id
     const user = await User.findById(userId).populate("plan")
 
     if (!user) {
-      console.log("Error: Usuario no encontrado")
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
-    console.log("Usuario encontrado exitosamente")
     return NextResponse.json({ user })
   } catch (error) {
-    console.error("Error detallado en GET /api/usuarios/[id]:", error)
-    return NextResponse.json(
-      {
-        error: "Error al obtener usuario",
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 },
-    )
+    console.error("Error en GET:", error)
+    return NextResponse.json({ error: "Error al obtener usuario" }, { status: 500 })
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
   try {
-    console.log("Iniciando PUT /api/usuarios/[id]")
     await dbConnect()
-    console.log("Conexión a DB establecida")
 
-    // Obtener ID de usuario de los parámetros o de la URL
-    const userId = params?.id || getUserIdFromUrl(request)
-    console.log("ID de usuario:", userId)
-
-    if (!userId) {
-      console.log("Error: ID de usuario no proporcionado")
-      return NextResponse.json({ error: "ID de usuario no proporcionado" }, { status: 400 })
-    }
-
-    const body = await request.json()
-    console.log("Datos recibidos:", body)
+    const { params } = await contextPromise
+    const userId = params.id
+    const body = await req.json()
 
     const currentUser = await User.findById(userId).populate("plan")
     if (!currentUser) {
-      console.log("Error: usuario no encontrado")
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
@@ -95,61 +60,30 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     if (body.montoPagado !== undefined) updateData.montoPagado = Number(body.montoPagado)
     if (body.estado) updateData.estado = body.estado
 
-    // Añadir campos adicionales si están presentes
-    if (body.cedula) updateData.cedula = body.cedula
-    if (body.nombre) updateData.nombre = body.nombre
-    if (body.email) updateData.email = body.email
-    if (body.telefono) updateData.telefono = body.telefono
-    if (body.direccion) updateData.direccion = body.direccion
-
-    console.log("Actualizando usuario con datos:", updateData)
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).populate("plan")
-    console.log("Usuario actualizado exitosamente")
 
     return NextResponse.json({ user: updatedUser })
   } catch (error) {
-    console.error("Error detallado en PUT /api/usuarios/[id]:", error)
-    return NextResponse.json(
-      {
-        error: "Error al actualizar usuario",
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 },
-    )
+    console.error("Error en PUT:", error)
+    return NextResponse.json({ error: "Error al actualizar usuario" }, { status: 500 })
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, contextPromise: Promise<{ params: { id: string } }>) {
   try {
-    console.log("Iniciando DELETE /api/usuarios/[id]")
     await dbConnect()
-    console.log("Conexión a DB establecida")
 
-    // Obtener ID de usuario de los parámetros o de la URL
-    const userId = params?.id || getUserIdFromUrl(request)
-    console.log("ID de usuario a eliminar:", userId)
-
-    if (!userId) {
-      console.log("Error: ID de usuario no proporcionado")
-      return NextResponse.json({ error: "ID de usuario no proporcionado" }, { status: 400 })
-    }
+    const { params } = await contextPromise
+    const userId = params.id
 
     const deletedUser = await User.findByIdAndDelete(userId)
     if (!deletedUser) {
-      console.log("Error: usuario no encontrado para eliminar")
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
     }
 
-    console.log("Usuario eliminado exitosamente")
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Error detallado en DELETE /api/usuarios/[id]:", error)
-    return NextResponse.json(
-      {
-        error: "Error al eliminar usuario",
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 },
-    )
+    console.error("Error en DELETE:", error)
+    return NextResponse.json({ error: "Error al eliminar usuario" }, { status: 500 })
   }
 }
